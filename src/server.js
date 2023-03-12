@@ -1,10 +1,24 @@
 const express = require("express");
 const app = express();
+const AppError = require("./utils/AppError");
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+// error-handling middleware
+app.use((error, req, res, next) => {
+  if (error instanceof AppError) {
+    return res.status(error.statusCode).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+
+  console.error(error);
+
+  return res.status(500).json({
+    status: "error",
+    message: "Internal Server Error",
+  });
 });
 
 const port = 3333;
