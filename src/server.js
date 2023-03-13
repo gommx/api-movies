@@ -1,8 +1,11 @@
 const express = require("express");
 const app = express();
+const routes = require("./routes");
 const AppError = require("./utils/AppError");
 
 app.use(express.json());
+
+app.use(routes);
 
 // error-handling middleware
 app.use((error, req, res, next) => {
