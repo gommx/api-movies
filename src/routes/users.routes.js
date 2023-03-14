@@ -1,9 +1,9 @@
 const { Router } = require("express");
-
 const usersRoutes = Router();
 
-usersRoutes.post("/users", (req, res) => {
-  res.json({ message: "user created successfully" });
-});
+const UsersController = require("../controller/UsersController");
+const usersController = new UsersController();
+
+usersRoutes.post("/users", usersController.create);
 
 module.exports = usersRoutes;
