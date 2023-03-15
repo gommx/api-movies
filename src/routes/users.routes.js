@@ -4,7 +4,7 @@ const usersRoutes = Router();
 const UsersController = require("../controller/UsersController");
 const usersController = new UsersController();
 
-usersRoutes.post("/users", usersController.create);
-usersRoutes.put("/users", usersController.update);
+usersRoutes.post("/", usersController.create);
+usersRoutes.put("/:id_user", usersController.update);
 
 module.exports = usersRoutes;
