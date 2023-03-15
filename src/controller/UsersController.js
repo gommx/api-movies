@@ -1,8 +1,8 @@
 const knex = require("../database/knex");
+const AppError = require("../utils/AppError");
 const { UtilsPassword } = require("../utils/utilsPassword");
 const { checkEmailExists } = require("../utils/checkEmailExists");
 const { checkFieldIsEmpty } = require("../utils/checkFieldIsEmpty");
-const AppError = require("../utils/AppError");
 
 class UsersController {
   async create(req, res) {
@@ -47,28 +47,57 @@ class UsersController {
   }
 
   async delete(req, res) {
-    const { email, password } = req.body;
-    const { user_id } = req.params;
+    const { email, password } = req.body; // get data from request body
+    const { user_id } = req.params; // get user_id from request params
 
-    checkFieldIsEmpty(req.body);
+    checkFieldIsEmpty(req.body); // verify if any field is empty
 
-    const user = await knex("users").where({ id: user_id }).first();
+    const user = await knex("users").where({ id: user_id }).first(); // get user from database
 
     if (!user) {
+      // verify if user exists
       throw new AppError("user not found");
     }
 
     if (user.email !== email) {
+      // verify if email address is the same as the one in the database
       throw new AppError("email address does not confer");
     }
 
-    const utilsPassword = new UtilsPassword();
+    const utilsPassword = new UtilsPassword(); // create a new instance of UtilsPassword
 
-    await utilsPassword.compare(password, user.password);
+    await utilsPassword.compare(password, user.password); // compare password with password in database
 
-    await knex("users").where({ id: user_id }).del();
+    await knex("users").where({ id: user_id }).del(); // delete user from database
 
-    res.status(200).json({ message: "user deleted successfully" });
+    res.status(200).json({ message: "user deleted successfully" }); // return a success message
+  }
+
+  async show(req, res) {
+    const { email, password } = req.body; // get data from request body
+    const { user_id } = req.query; // get user_id from request query
+
+    const user = await knex("users").where({ id: user_id }).first(); // get user from database
+
+    checkFieldIsEmpty(req.body); // verify if any field is empty
+
+    if (!user) {
+      // verify if user exists
+      throw new AppError("user not found");
+    }
+
+    if (user.email !== email) {
+      // verify if email address is the same as the one in the database
+      throw new AppError("email address does not confer");
+    }
+
+    const utilsPassword = new UtilsPassword(); // create a new instance of UtilsPassword
+
+    await utilsPassword.compare(password, user.password); // compare password with password in database
+
+    const { password: userPassword, ...userData } = user; // remove password from user data
+
+    res.status(200).json({ user: userData }); // return user data
   }
 }
 
