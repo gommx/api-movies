@@ -9,8 +9,8 @@ class UtilsPassword {
     return hash;
   }
 
-  async compare(oldPassword, userPassword) {
-    const passwordMatch = await bcrypt.compare(oldPassword, userPassword);
+  async compare(password, passwordCompare) {
+    const passwordMatch = await bcrypt.compare(password, passwordCompare);
 
     if (!passwordMatch) {
       throw new AppError("Incorrect password", 400);
