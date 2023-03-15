@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const AppError = require("./AppError");
 
 class UtilsPassword {
   async encrypt(password) {
@@ -8,7 +9,13 @@ class UtilsPassword {
     return hash;
   }
 
-  async compare(password) {}
+  async compare(oldPassword, userPassword) {
+    const passwordMatch = await bcrypt.compare(oldPassword, userPassword);
+
+    if (!passwordMatch) {
+      throw new AppError("Incorrect password", 400);
+    }
+  }
 }
 
 module.exports = { UtilsPassword };
