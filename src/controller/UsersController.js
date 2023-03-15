@@ -2,6 +2,7 @@ const knex = require("../database/knex");
 const { UtilsPassword } = require("../utils/utilsPassword");
 const { checkEmailExists } = require("../utils/checkEmailExists");
 const { checkFieldIsEmpty } = require("../utils/checkFieldIsEmpty");
+const AppError = require("../utils/AppError");
 
 class UsersController {
   async create(req, res) {
@@ -43,6 +44,31 @@ class UsersController {
       .where({ id: user_id }); // update user in database
 
     return res.status(200).json({ message: "user updated successfully" }); // return a success message
+  }
+
+  async delete(req, res) {
+    const { email, password } = req.body;
+    const { user_id } = req.params;
+
+    checkFieldIsEmpty(req.body);
+
+    const user = await knex("users").where({ id: user_id }).first();
+
+    if (!user) {
+      throw new AppError("user not found");
+    }
+
+    if (user.email !== email) {
+      throw new AppError("email address does not confer");
+    }
+
+    const utilsPassword = new UtilsPassword();
+
+    await utilsPassword.compare(password, user.password);
+
+    await knex("users").where({ id: user_id }).del();
+
+    res.status(200).json({ message: "user deleted successfully" });
   }
 }
 
