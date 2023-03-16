@@ -102,6 +102,28 @@ class NotesController {
 
     res.status(200).json({ message: "note updated successfully" });
   }
+
+  async delete(req, res) {
+    const { note_id } = req.params;
+    const { user_id } = req.headers;
+
+    const note = await knex("movie_notes").where({ id: note_id }).first();
+
+    // verify if note exists
+    if (!note) {
+      throw new AppError("note not found");
+    }
+
+    // verify if note belongs to user
+    if (note.user_id !== Number(user_id)) {
+      throw new AppError("note is not from this user");
+    }
+
+    // delete note
+    await knex("movie_notes").where({ id: note_id }).del();
+
+    res.status(200).json({ message: "note deleted successfully" });
+  }
 }
 
 module.exports = NotesController;

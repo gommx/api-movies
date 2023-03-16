@@ -6,5 +6,6 @@ const notesController = new NotesController();
 
 moviesRoutes.post("/", notesController.create);
 moviesRoutes.put("/:note_id", notesController.update)
+moviesRoutes.delete("/:note_id", notesController.delete)
 
 module.exports = moviesRoutes;
