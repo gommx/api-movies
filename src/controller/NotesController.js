@@ -124,6 +124,21 @@ class NotesController {
 
     res.status(200).json({ message: "note deleted successfully" });
   }
+
+  async index(req, res) {
+    const { user_id } = req.headers;
+
+    // get all notes from user
+    const notes = await knex("movie_notes")
+      .join("movie_tags", "movie_notes.id", "movie_tags.note_id")
+      .where({ "movie_notes.user_id": user_id })
+      .select("*")
+      .orderBy("movie_notes.created_at", "desc");
+
+    res.status(200).json({ notes });
+  }
+
+  
 }
 
 module.exports = NotesController;
