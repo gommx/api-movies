@@ -5,6 +5,7 @@ const NotesController = require("../controller/NotesController.js");
 const notesController = new NotesController();
 
 moviesRoutes.get("/", notesController.index);
+moviesRoutes.get("/:note_id", notesController.show);
 moviesRoutes.post("/", notesController.create);
 moviesRoutes.put("/:note_id", notesController.update);
 moviesRoutes.delete("/:note_id", notesController.delete);

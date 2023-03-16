@@ -138,7 +138,24 @@ class NotesController {
     res.status(200).json({ notes });
   }
 
-  
+  async show(req, res) {
+    const { note_id } = req.params;
+    const { user_id } = req.headers;
+
+    // get note from user
+    const note = await knex("movie_notes")
+      .join("movie_tags", "movie_notes.id", "movie_tags.note_id")
+      .where({ "movie_notes.user_id": user_id, "movie_notes.id": note_id })
+      .select("*")
+      .first();
+
+    // verify if note exists
+    if (!note) {
+      throw new AppError("note not found");
+    }
+
+    res.status(200).json({ note });
+  }
 }
 
 module.exports = NotesController;
