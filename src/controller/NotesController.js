@@ -46,6 +46,62 @@ class NotesController {
 
     res.status(201).json({ message: "movie note created successfully" });
   }
+
+  async update(req, res) {
+    const { title, description, rating, tags } = req.body;
+    const { user_id } = req.headers;
+    const { note_id } = req.params;
+
+    checkFieldIsEmpty(req.body);
+    checkFieldIsEmpty(user_id);
+    checkFieldIsEmpty(note_id);
+    checkFieldIsEmpty(tags);
+
+    const user = await knex("users").where({ id: user_id }).first();
+
+    if (!user) {
+      throw new AppError("user not found");
+    }
+
+    // verify if note exists
+    const note = await knex("movie_notes").where({ id: note_id }).first();
+
+    if (!note) {
+      throw new AppError("note not found");
+    }
+
+    // verify if note belongs to user
+    if (note.user_id !== user.id) {
+      throw new AppError("this note belongs to another user");
+    }
+
+    // verify if rating is valid
+    const isRatingValid = rating >= 0 && rating <= 5;
+
+    if (!isRatingValid) {
+      throw new AppError("invalid rating");
+    }
+
+    // verify if movie already exists
+    if (title !== note.title) {
+      // if the title is different from the previous one
+      const isMovieRepeated = await knex("movie_notes").where({ user_id, title }).first();
+
+      if (isMovieRepeated) {
+        throw new AppError("have you registered this movie before");
+      }
+    }
+
+    // update note
+    await knex("movie_notes")
+      .update({ title, description, rating, updated_at: knex.fn.now() })
+      .where({ id: note_id });
+
+    // update tags
+    await knex("movie_tags").update({ name: tags }).where({ note_id });
+
+    res.status(200).json({ message: "note updated successfully" });
+  }
 }
 
 module.exports = NotesController;
